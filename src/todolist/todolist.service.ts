@@ -1,11 +1,15 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { TodoList } from '../models/todolist.model';
 import { Collaborator } from 'src/models/collaborator.model';
 import { User } from '../models/user.model';
 import { CreateTodoListDto } from './dto/create-todolist.dto';
 import { PermissionService } from 'src/common/permission.service';
-
+import { Op } from 'sequelize';
 @Injectable()
 export class TodoListService {
   constructor(
@@ -31,8 +35,13 @@ export class TodoListService {
 
   async findAllByUser(userId: number) {
     return this.todoListModel.findAll({
-      where: { ownerId: userId },
-      include: [User],
+      where: {
+        [Op.or]: [{ ownerId: userId }, { '$collaborators.userId$': userId }],
+      },
+      include: [
+        { model: User, as: 'owner' },
+        { model: Collaborator, as: 'collaborators' },
+      ],
     });
   }
 
@@ -41,7 +50,7 @@ export class TodoListService {
     if (!todoList) {
       throw new NotFoundException('To-Do list not found');
     }
-    
+
     await this.permissionService.checkAdminOrOwner(id, userId);
 
     todoList.name = name;

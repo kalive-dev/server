@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Task } from '../models/task.model';
 import { TodoList } from '../models/todolist.model';
@@ -16,7 +20,11 @@ export class TaskService {
     private readonly permissionService: PermissionService,
   ) {}
 
-  async create(todolistId: number, createTaskDto: CreateTaskDto, userId: number) {
+  async create(
+    todolistId: number,
+    createTaskDto: CreateTaskDto,
+    userId: number,
+  ) {
     const { name, description } = createTaskDto;
     const todolist = await this.todoListModel.findByPk(todolistId);
 
@@ -52,7 +60,7 @@ export class TaskService {
     name: string,
     description: string,
     todolistId: number,
-    userId: number
+    userId: number,
   ) {
     const task = await this.taskModel.findByPk(id);
     if (!task) {
@@ -67,17 +75,14 @@ export class TaskService {
     return await this.taskModel.findByPk(id);
   }
 
-  async delete(
-    id: number,
-    todolistId: number,
-    userId: number) {
+  async delete(id: number, todolistId: number, userId: number) {
     const task = await this.taskModel.findByPk(id);
     if (!task) {
       throw new NotFoundException('Task not found');
     }
 
     await this.permissionService.checkAdminOrOwner(todolistId, userId);
-    
+
     await task.destroy();
     return { message: 'Task deleted successfully' };
   }
@@ -87,8 +92,13 @@ export class TaskService {
     if (!task) {
       throw new NotFoundException('Task not found');
     }
-    task.completed = completed;
-    await task.save();
+
+    console.log(`Updating task ${id}, setting completed to`, completed);
+
+    // Explicitly update the completed field
+    await this.taskModel.update({ completed }, { where: { id } });
+
+    // Reload the task from the database to confirm update
     return await this.taskModel.findByPk(id);
   }
 }

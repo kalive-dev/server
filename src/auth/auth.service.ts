@@ -41,7 +41,10 @@ export class AuthService {
     }
   }
 
-  async login(email: string, password: string): Promise<{ token: string }> {
+  async login(
+    email: string,
+    password: string,
+  ): Promise<{ token: string; id: number }> {
     try {
       const user = await this.userModel.findOne({ where: { email } });
       if (!user) {
@@ -58,7 +61,7 @@ export class AuthService {
         { id: userData.id },
         { secret: process.env.JWT_SECRET },
       );
-      return { token };
+      return { token: token, id: userData.id };
     } catch (error) {
       throw new UnauthorizedException(error.message);
     }

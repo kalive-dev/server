@@ -8,7 +8,7 @@ import {
   Body,
   Param,
   UseGuards,
-  Request
+  Request,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { TaskService } from './task.service';
@@ -24,17 +24,21 @@ export class TaskController {
   async create(
     @Param('todolistId') todolistId: number,
     @Body() createTaskDto: CreateTaskDto,
-    @Request() req: any
+    @Request() req: any,
   ) {
-    const response = await this.taskService.create(todolistId, createTaskDto, req.user.id);
-    return new ApiResponse('success', 'New To-Do task was added', response)
+    const response = await this.taskService.create(
+      todolistId,
+      createTaskDto,
+      req.user.id,
+    );
+    return new ApiResponse('success', 'New To-Do task was added', response);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(@Param('todolistId') todolistId: number) {
     const response = await this.taskService.findAllByTodoList(todolistId);
-    return new ApiResponse('success', 'All To-Do tasks was received', response)
+    return new ApiResponse('success', 'All To-Do tasks was received', response);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -43,10 +47,16 @@ export class TaskController {
     @Param('taskId') taskId: number,
     @Param('todolistId') todolistId: number,
     @Body() body: { name: string; description: string },
-    @Request() req: any
+    @Request() req: any,
   ) {
-    const response = await this.taskService.update(taskId, body.name, body.description, todolistId, req.user.id);
-    return new ApiResponse('success', 'To-Do task was updated', response)
+    const response = await this.taskService.update(
+      taskId,
+      body.name,
+      body.description,
+      todolistId,
+      req.user.id,
+    );
+    return new ApiResponse('success', 'To-Do task was updated', response);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -54,10 +64,14 @@ export class TaskController {
   async delete(
     @Param('taskId') taskId: number,
     @Param('todolistId') todolistId: number,
-    @Request() req: any
+    @Request() req: any,
   ) {
-    const response = await this.taskService.delete(taskId, todolistId, req.user.id);
-    return new ApiResponse('success', 'To-Do task was deleted', response)
+    const response = await this.taskService.delete(
+      taskId,
+      todolistId,
+      req.user.id,
+    );
+    return new ApiResponse('success', 'To-Do task was deleted', response);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -66,7 +80,19 @@ export class TaskController {
     @Param('taskId') taskId: number,
     @Body() body: { completed: boolean },
   ) {
-    const response = await this.taskService.toggleCompletion(taskId, body.completed);
-    return new ApiResponse('success', 'To-Do task was completed', response)
+    console.log(
+      `Updating task ${taskId}, setting completed to`,
+      body.completed,
+    );
+
+    const response = await this.taskService.toggleCompletion(
+      taskId,
+      body.completed,
+    );
+    return new ApiResponse(
+      'success',
+      'To-Do task completion status updated',
+      response,
+    );
   }
 }

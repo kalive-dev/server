@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Collaborator } from '../models/collaborator.model';
 import { User } from '../models/user.model';
@@ -20,11 +24,11 @@ export class CollaboratorService {
   async addCollaborator(
     todolistId: number,
     createCollaboratorDto: CreateCollaboratorDto,
-    userId: number
+    userId: number,
   ) {
     const { email, role } = createCollaboratorDto;
     const user = await this.userModel.findOne({ where: { email } });
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -34,9 +38,9 @@ export class CollaboratorService {
     const existingCollaborator = await this.collaboratorModel.findOne({
       where: {
         userId: user.dataValues.id,
-        todolistId: todolistId
-      }
-    });    
+        todolistId: todolistId,
+      },
+    });
 
     if (existingCollaborator) {
       throw new BadRequestException('User is collaborater already');
@@ -57,5 +61,15 @@ export class CollaboratorService {
       where: { todolistId },
       include: [User, TodoList],
     });
+  }
+
+  async delete(collaboratorId: number) {
+    const collaborator = await this.collaboratorModel.findByPk(collaboratorId);
+    if (!collaborator) {
+      throw new NotFoundException('Collaborator not found');
+    }
+
+    await collaborator.destroy();
+    return collaborator;
   }
 }

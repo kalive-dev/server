@@ -10,12 +10,20 @@ export class AuthController {
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
     const response = await this.authService.register(createUserDto);
-    return new ApiResponse('success', 'You was register with succusses', response);
+    return new ApiResponse(
+      'success',
+      'You was register with succusses',
+      response,
+    );
   }
 
   @Post('login')
   async login(@Body() body: { email: string; password: string }) {
     const response = await this.authService.login(body.email, body.password);
-    return new ApiResponse('success', 'You was loggined succssesfuly', response)
+    return new ApiResponse(
+      'success',
+      'You was loggined succssesfuly',
+      response,
+    );
   }
 }

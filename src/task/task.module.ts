@@ -7,10 +7,7 @@ import { TaskController } from './task.controller';
 import { CommonModule } from 'src/common/common.module';
 
 @Module({
-  imports: [
-    SequelizeModule.forFeature([Task, TodoList]),
-    CommonModule
-  ],
+  imports: [SequelizeModule.forFeature([Task, TodoList]), CommonModule],
   providers: [TaskService],
   controllers: [TaskController],
 })
